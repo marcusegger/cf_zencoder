@@ -27,6 +27,7 @@
 	<cfproperty name="api_key" type="string" hint="This is the API key provided by Zencoder." />
 	<cfproperty name="api_base_url" type="string" hint="This is the API Base URL for the Zencoder API." />
 	<cfproperty name="download_connections" type="numeric" hint="You can specify the number of connections to use to download a file. This may speed up download transfer times. Be aware that more connections can place a heavier load on the server. By default, Zencoder uses 5 connections. The maximum allowed is 25." />
+	<cfproperty name="passThroughPhrase" type="string" hint="Optional information to store alongside this job." />
 	<cfproperty name="region" type="string" hint="You can specify an Amazon AWS region to use for encoding a job and we will process the job on servers in the region specified." />
 	<cfproperty name="api_timeout" type="numeric" hint="This is the API timeout time in seconds." />
 	<cfproperty name="testMode" type="boolean" hint="If true, test mode will be enabled for the API." />
@@ -37,59 +38,63 @@
 	<cffunction name="init" access="public" returntype="Zencoder" output="false">
 			<cfargument name="api_key" type="string" required="yes" hint="This is the API key provided by Zencoder.">
 			<cfargument name="api_base_url" type="string" required="no" default="https://app.zencoder.com/api/v2"  hint="This is the API Base URL for the Zencoder API.">
-			<cfargument name="download_connections" type="numeric" 	required="no" default="0" hint="If set to zero, it will use the Zencoder default of 5.  The maximum allowed is 25.">
+			<cfargument name="download_connections" type="numeric" required="no" default="0" hint="If set to zero, it will use the Zencoder default of 5.  The maximum allowed is 25.">
+			<cfargument name="passThroughPhrase" type="string" required="yes" default="" hint="Optional information to store alongside this job.">
 			<cfargument name="region" type="string" required="no" default="europe" hint="VALID VALUES: us, europe, asia, sa, australia, us-n-virginia, us-oregon, us-n-california, eu-dublin, asia-singapore, asia-tokyo, sa-saopaulo, or australia-sydney">
 			<cfargument name="api_timeout" type="numeric" required="no" default="10" hint="This is the API timeout time in seconds.">
 			<cfargument name="testMode" type="boolean" required="no" default="false" hint="If true, test mode will be enabled for the API.">
 			<cfargument name="strictMode" type="boolean" required="no" default="false" hint="If true, sctrict mode will be enabled for the API.">
 			<cfargument name="privateMode" type="boolean" required="no" default="false" hint="If true, private mode will be enabled for the API.">
 			
-				<cfscript>
-
-					variables.api_key = arguments.api_key;
-					variables.api_base_url = arguments.api_base_url;
-					variables.download_connections = arguments.download_connections;
-					variables.region = arguments.region;
-					variables.api_timeout = arguments.api_timeout;
-					variables.testMode = arguments.testMode;
-					variables.strictMode = arguments.strictMode;
-					variables.privateMode = arguments.privateMode;
-					
-					// check parameters
-					if (len(trim(variables.api_key)) == 0) {
-						throw(type = "InvalidParameter", message = "The api_key parameter is not defined.");
-					}
-					if (len(trim(variables.api_base_url)) == 0) {
-						throw(type = "InvalidParameter", message = "The api_base_url parameter is not defined.");
-					}
-					if ((variables.download_connections < 0) or (variables.download_connections > 25)) {
-						throw(type = "InvalidParameter", message = "The download_connections parameter must be within [0,25].");
-					}
-					if (len(trim(variables.region)) == 0) {
-						throw(type = "InvalidParameter", message = "The region parameter is not defined.");
-					}
-					return this;
+			<cfscript>
+				variables.api_key = arguments.api_key;
+				variables.api_base_url = arguments.api_base_url;
+				variables.download_connections = arguments.download_connections;
+				variables.region = arguments.region;
+				variables.api_timeout = arguments.api_timeout;
+				variables.testMode = arguments.testMode;
+				variables.strictMode = arguments.strictMode;
+				variables.privateMode = arguments.privateMode;
+				variables.pass_through = arguments.passThroughPhrase;
+				// check parameters
+				if (len(trim(variables.api_key)) == 0) {
+					throw(type = "InvalidParameter", message = "The api_key parameter is not defined.");
+				}
+				if (len(trim(variables.api_base_url)) == 0) {
+					throw(type = "InvalidParameter", message = "The api_base_url parameter is not defined.");
+				}
+				if ((variables.download_connections < 0) or (variables.download_connections > 25)) {
+					throw(type = "InvalidParameter", message = "The download_connections parameter must be within [0,25].");
+				}
+				if (len(trim(variables.region)) == 0) {
+					throw(type = "InvalidParameter", message = "The region parameter is not defined.");
+				}
+				return this;
 			</cfscript>
 	</cffunction>
 	
 	<!--- createEncodingJob --->
 	<cffunction name="createEncodingJob" access="public" returntype="struct" output="false" hint="This will create a transcoding job at Zencoder.">
 			<cfargument name="input" type="string" required="yes" hint="This is the address of the media input (HTTP, HTTPS, FTP, or SFTP URL).">
-			<cfargument name="output" type="ZencoderOutputArray" required="yes" hint="This is the array of job outputs.">
 			<cfargument name="download_connections" type="numeric" required="no" default="0" hint="If set to zero, it will use the default value.">
+			<cfargument name="passThroughPhrase" type="string" required="yes" default="" hint="Any string up to 255 characters, optional information to store alongside this job.">
+			<cfargument name="output" type="ZencoderOutputArray" required="yes" hint="This is the array of job outputs.">
 			
 			<cfscript>
 				// use the default download connections if the given one isn't used
 				if ((arguments.download_connections < 1) or (arguments.download_connections > 25)) {
 					arguments.download_connections = variables.download_connections;
 				}
-				
 				// build the input values
 				var jobInput = structNew();
 				jobInput.api_key = variables.api_key;
 				jobInput.region = variables.region;
+				if (len(trim(variables.pass_through))) {
+					jobInput.pass_through = variables.pass_through;
+				}
+				jobInput.download_connections = arguments.download_connections;		
 				jobInput.input = arguments.input;
-				jobInput.download_connections = arguments.download_connections;
+
 				jobInput.output = arguments.output.getData();
 				if (variables.testMode) {
 					jobInput.test = 1;

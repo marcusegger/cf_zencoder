@@ -2,13 +2,13 @@
 	// initial settings
 	variables.sourceVideoFileName = "testvideo.mp4";
 	// location of the source file
-	variables.sourceFileURL 	= "http://www.example.com/encodingtests/tmp/" & variables.sourceVideoFileName;
+	variables.sourceFileURL 	= "http://download.gamestar.de/encodingtests/tmp/" & variables.sourceVideoFileName;
 	// location where the result should be saved
-	variables.base_url 		= "ftp://johndoe:password@example.com/encodingtests/tmp";
+	variables.base_url 		= "ftp://gsfiles:gS4You!@upload.idg.de/encodingtests/tmp";
 	// email address or callback URL
-	variables.notifyUrl		= "john.doe@example.com";
+	variables.notifyUrl		= "me@marcusegger.de";
 	// your Zencoder API key
-	variables.sZencoderApiKey = "yourAPIkeyhere";
+	variables.sZencoderApiKey = "e39366cc30e371f30ef5f5f47324ca85";
 	
 	// video information
 	width	= 1920;
@@ -16,7 +16,7 @@
 
 	// import cfc directory and setup the zencoder api reference
 	import "cfc.*";
-	zencoderApi = new Zencoder(argumentCollection = {api_key = "#variables.sZencoderApiKey#", download_connections = 25, testMode = false, strictMode = false, region="europe", privateMode = false, passThroughPhrase="some remarks for this job", api_base_url="https://app.zencoder.com/api/v2", pass_through="some additional information for this job if you like"});
+	zencoderApi = new Zencoder(argumentCollection = {api_key = "#variables.sZencoderApiKey#", download_connections = 25, testMode = false, strictMode = false, region="europe", privateMode = false, passThroughPhrase="mann ey endlich", api_base_url="https://app.zencoder.com/api/v2"});
 	
 	// check for the video aspect ratio
 	is_16x9_aspect = ((width / 16) == (height / 9));
@@ -40,16 +40,7 @@
 			size				= "854x480",
 			speed				= 4,
 			notifications		= zencoderNotification));		
-	
-	// 720p 2-pass / bitrate 2500
-	zencoderOutputArr.addOutput(new ZencoderOutput(
-			label 				= "720p",
-			base_url 			= variables.base_url,
-			filename 			= "720_" & variables.sourceVideoFileName,
-			video_bitrate		= 2500,
-			size				= "1280x720",
-			speed				= 4,
-			notifications		= zencoderNotification));		
+		
 					
 	try {
 		// perform the API call

@@ -19,7 +19,7 @@ Since Todd Schlomer's Version 1.0.0 (April 9, 2011 5:53 AM) you'll get the follo
 * new Options added for: size, device_profile, h264_profile, h264_level, h264_reference_frames, parallel_upload_limit, decoder_bitrate_cap, decoder_buffer_size, one_pass, audio_constant_bitrate, upscale, aspect_mode
 
 ### Zencoder.cfc 
-* Options added for: strictMode, privateMode
+* Options added for: strictMode, privateMode, pass_through
 
 ### ZencoderWatermarks.cfc 
 * Component added for watermark(s) support via Zencoder API. You can create Watermarks dynamically
