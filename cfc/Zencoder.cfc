@@ -17,8 +17,8 @@
  * Author:	Marcus Egger
  * Date:	May 8, 2013
  **********************************************/
+ * This is the API for the Zencoder media encoding service (www.Zencoder.com).  See http://zencoder.com/docs/api/ for more information.
  */--->
- 
 <cfcomponent displayname="Zencoder" extends="ZencoderHelpers" hint="This is the API for the Zencoder media encoding service (www.zencoder.com)." output="false">
 	<cfproperty name="api_key" type="string" hint="This is the API key provided by Zencoder." />
 	<cfproperty name="api_base_url" type="string" hint="This is the API Base URL for the Zencoder API." />
@@ -29,6 +29,7 @@
 	<cfproperty name="testMode" type="boolean" hint="If true, test mode will be enabled for the API." />
 	<cfproperty name="strictMode" type="boolean" hint="By default, Zencoder will try to correct encoding problems for you. This is called compatible mode. If you don't want that set strictMode to false" />
 	<cfproperty name="privateMode" type="boolean" hint="Privacy mode will enforce certain API parameters to protect your content from unauthorized views and obfuscate any potentially sensitive information. Zencoder employees will not view private files for any reason." />
+	<cfproperty name="mockMode" type="boolean" hint="Mocks a job request, returning the normal response without actually creating a job. Job and output IDs will be null." />
 
 	<!--- init --->
 	<cffunction name="init" access="public" returntype="Zencoder" output="false">
@@ -41,6 +42,7 @@
 			<cfargument name="testMode" type="boolean" required="no" default="false" hint="If true, test mode will be enabled for the API.">
 			<cfargument name="strictMode" type="boolean" required="no" default="false" hint="If true, sctrict mode will be enabled for the API.">
 			<cfargument name="privateMode" type="boolean" required="no" default="false" hint="If true, private mode will be enabled for the API.">
+			<cfargument name="mockMode" type="boolean" required="no" default="false" hint="If true, the job request will be mocked">
 			
 			<cfscript>
 				variables.api_key = arguments.api_key;
@@ -52,6 +54,7 @@
 				variables.strictMode = arguments.strictMode;
 				variables.privateMode = arguments.privateMode;
 				variables.pass_through = arguments.passThroughPhrase;
+				variables.mockMode = arguments.mockMode;
 				// check parameters
 				if (len(trim(variables.api_key)) == 0) {
 					throw(type = "InvalidParameter", message = "The api_key parameter is not defined.");
@@ -101,10 +104,20 @@
 				if (variables.privateMode) {
 					jobInput.private = 1;
 				}											
-				
+				if (variables.mockMode) {
+					jobInput.mock = 1;
+				}				
 				// perform the API call
 				var result = performApiCall(apiMethodPath = "jobs",httpMethod = "post",methodBody = jobInput);
 				result.outputs = arrayNew(1);
+
+				if (variables.mockMode) {
+					result.mockMode = true;
+				}
+				else {
+					result.mockMode = false;
+				}
+
 				if (result.success and isDefined("result.data.id")) {
 					result.jobID = result.data.id;
 					
