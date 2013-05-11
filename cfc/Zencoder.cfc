@@ -1,7 +1,6 @@
 ﻿<!---/**********************************************
- * ColdFusion Zencoder API
- * Copyright (C) 2010 SCTM Enterprises, LLC (Todd Schlomer)
- * 
+ * cf_zencoder Copyright (C) 2013 Marcus Egger
+ * Based on the http://zencoder.riaforge.org/ Project by SCTM Enterprises, LLC (Todd Schlomer)
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -15,14 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **********************************************
- * Author:	Todd Schlomer
- * Date:	December 8, 2010
+ * Author:	Marcus Egger
+ * Date:	May 8, 2013
  **********************************************/
-
-/**
- * This is the API for the Zencoder media encoding service (www.Zencoder.com).  See http://zencoder.com/docs/api/ for more information.
- * @author Todd Schlomer
  */--->
+ 
 <cfcomponent displayname="Zencoder" extends="ZencoderHelpers" hint="This is the API for the Zencoder media encoding service (www.zencoder.com)." output="false">
 	<cfproperty name="api_key" type="string" hint="This is the API key provided by Zencoder." />
 	<cfproperty name="api_base_url" type="string" hint="This is the API Base URL for the Zencoder API." />
